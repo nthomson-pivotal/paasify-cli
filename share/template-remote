@@ -1,0 +1,13 @@
+cat << EOF > $env_dir/remote.tf
+terraform {
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "${TEMPLATE_ORG}"
+    token = "${TEMPLATE_TOKEN}"
+
+    workspaces {
+      name = "${TEMPLATE_WORKSPACE}"
+    }
+  }
+}
+EOF

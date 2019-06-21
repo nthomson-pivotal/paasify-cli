@@ -1,0 +1,20 @@
+# Init script for env-related commands
+
+source $_PAASIFY_ROOT/share/init
+
+if [ -f "$PAASIFY_CONFIG" ]; then
+  source $PAASIFY_CONFIG
+fi
+
+if [ ! -f "$PAASIFY_VERSIONS" ]; then
+  echo "Error: Version metadata not found, please run 'paasify update'"
+  exit 1
+fi
+
+export ENVS_DIR="$PAASIFY_HOME/envs"
+
+if [ ! -d "$ENVS_DIR" ]; then
+  mkdir $ENVS_DIR
+fi
+
+TF_BIN=$_PAASIFY_ROOT/share/terraform

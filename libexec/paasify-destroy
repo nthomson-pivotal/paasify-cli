@@ -1,0 +1,74 @@
+#!/bin/bash
+# Usage: paasify destroy
+# Summary: Destroy a given environment
+# Help: Completely destroys a specific environment, deleting all cloud infrastructure with it. 
+# Warning: This operation is irreversible.
+
+source $_PAASIFY_ROOT/share/init-env
+
+skip_terraform=false
+
+while getopts ":n:s" opt; do
+  case ${opt} in
+    n )
+      name=$OPTARG
+      ;;
+    s )
+      skip_terraform=true
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$name" ]; then
+  echo "Error: An environment name must be supplied (-n)"
+  exit 1
+fi
+
+env_dir=$ENVS_DIR/$name
+
+if [ ! -d "$env_dir" ]; then
+  echo "Environment '$name' does not exist"
+  exit
+fi
+
+state_file=$env_dir/terraform.tfstate
+
+echo "Are you sure you want to delete environment '$name'?"
+echo "($env_dir)"
+
+read -p "Y/y: " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+  if [ ! -z "$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN" ]; then
+    export ATLAS_TOKEN="$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN"
+  fi
+
+  if [ "$skip_terraform" = true ] ; then
+    echo "Skipping Terraform destroy"
+  else
+    (cd $env_dir && TF_VAR_pivnet_token='' $TF_BIN destroy --auto-approve -state=$state_file -input=false)
+  fi
+
+  if [ -f $env_dir/cert.pem ]; then
+    chmod 700 $env_dir/cert.pem
+  fi
+
+  rm -rf "$env_dir"
+else
+  echo "Aborting"
+
+  exit 0
+fi
+
+echo ""
+echo "Environment '$name' has been destroyed"

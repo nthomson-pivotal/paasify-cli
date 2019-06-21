@@ -1,0 +1,23 @@
+#!/bin/bash
+# Usage: paasify versions
+# Summary: List the current versions that are available
+# Help: List the versions that are currently available to build environments
+
+source $_PAASIFY_ROOT/share/init
+
+if [ ! -f "$PAASIFY_VERSIONS" ]; then
+  echo "Error: Version metadata not found, please run 'paasify update'"
+  exit 1
+fi
+
+echo "The following versions are available:"
+echo ""
+
+version_json=$(cat $PAASIFY_VERSIONS)
+for row in $(echo "${version_json}" | jq -r '.[] | @base64'); do
+    _jq() {
+     echo ${row} | base64 --decode | jq -r ${1}
+    }
+
+   echo -e "$(_jq '.name') \t -> ($(_jq '.commit.sha'))"
+done

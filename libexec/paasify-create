@@ -1,0 +1,116 @@
+#!/bin/bash
+# Usage: paasify create
+# Summary: Create a new environment
+# Help: Creates a new environment, which can be configured to use a distinct PAS version, cloud etc.
+
+source $_PAASIFY_ROOT/share/init-env
+
+while getopts ":n:c:v:d:o:" opt; do
+  case ${opt} in
+    v )
+      version=$OPTARG
+      ;;
+    n )
+      name=$OPTARG
+      ;;
+    c )
+      cloud=$OPTARG
+      ;;
+    d )
+      dns_suffix=$OPTARG
+      ;;
+    o )
+      remote_org=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$name" ]; then
+  echo "Error: An environment name must be supplied (-n myenv)"
+  exit 1
+fi
+if [ -z "$cloud" ]; then
+  echo "Error: A cloud must be supplied (-c aws|gcp|azure)"
+  exit 1
+fi
+if [ -z "$version" ]; then
+  echo "Error: A version must be supplied (-v 2.6)"
+  exit 1
+fi
+if [ -z "$dns_suffix" ]; then
+  echo "Error: A DNS suffix must be supplied (-d aws.paasify.org)"
+  exit 1
+fi
+
+if [ ! -f $_PAASIFY_ROOT/share/template-$cloud ]; then
+  echo "Error: Cloud $cloud is not supported"
+  exit 1
+fi
+
+env_dir=$ENVS_DIR/$name
+
+if [ -d "$env_dir" ]; then
+  echo "Error: Environment already exists, please delete it or choose another name"
+  exit 1
+fi
+
+version_json=$(cat $PAASIFY_VERSIONS)
+for row in $(echo "${version_json}" | jq -r '.[] | @base64'); do
+    _jq() {
+     echo ${row} | base64 --decode | jq -r ${1}
+    }
+
+    version_name="$(_jq '.name')"
+
+    if [[ "$version_name" == "$version" ]]; then
+      version_sha=$(_jq '.commit.sha')
+    fi
+done
+
+if [ -z "$version_sha" ]; then
+  echo "Error: No metadata for version '$version', check available versions with 'paasify versions'"
+  exit 1
+fi
+
+echo "Creating env directory at $env_dir..."
+
+mkdir $env_dir
+
+export TEMPLATE_ENV_NAME="${name}"
+export TEMPLATE_MODULE_URL="github.com/nthomson-pivotal/pcf-paasify?ref=${version_sha}//terraform/$cloud"
+export TEMPLATE_DNS_SUFFIX="${dns_suffix}"
+
+echo "Generating TF config..."
+
+source $_PAASIFY_ROOT/share/template-$cloud
+
+echo $TF_CONFIG
+
+if [ ! -z "$remote_org" ]; then
+  export TEMPLATE_ORG="$remote_org"
+  export TEMPLATE_WORKSPACE="paasify-$name"
+
+  if [ ! -z "$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN" ]; then
+    export TEMPLATE_TOKEN="$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN"
+  fi
+
+  echo "Generating remote TF config..." 
+
+  source $_PAASIFY_ROOT/share/template-remote
+fi
+
+echo "Initializing TF project..."
+
+(cd $env_dir && $TF_BIN init -input=false -force-copy)
+
+echo ""
+echo "Environment '$name' has been created, use 'paasify plan -n $name' to see what will be built"

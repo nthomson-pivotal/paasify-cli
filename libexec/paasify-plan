@@ -1,0 +1,51 @@
+#!/bin/bash
+# Usage: paasify plan
+# Summary: Show the plan for a given environment
+# Help: Prints the plan output from Terraform for the changes that would be applied to a given environment in its current state
+
+source $_PAASIFY_ROOT/share/init-env
+
+while getopts ":n:" opt; do
+  case ${opt} in
+    n )
+      name=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$name" ]; then
+  echo "Error: An environment name must be supplied (-n)"
+  exit 1
+fi
+
+env_dir=$ENVS_DIR/$name
+
+if [ ! -d "$env_dir" ]; then
+  echo "Environment '$name' does not exist"
+  exit
+fi
+
+if [ -z "$PAASIFY_PIVNET_TOKEN" ]; then
+  echo "Error: No PivNet token found, please run 'paasify config'"
+  exit
+fi
+
+if [ ! -z "$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN" ]; then
+  export ATLAS_TOKEN="$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN"
+fi
+
+state_file=$env_dir/terraform.tfstate
+
+(cd $env_dir && TF_VAR_pivnet_token=$PAASIFY_PIVNET_TOKEN $TF_BIN plan -state=$state_file -input=false)
+
+echo ""
+echo "To apply this configuration use 'paasify plan -n $name'"

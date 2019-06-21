@@ -1,0 +1,55 @@
+#!/bin/bash
+# Usage: paasify import
+# Summary: Import an environment from an existing remote state
+# Help: Imports an exising paasify environment from a remote state file hosted in Terraform Enterprise. This can be used to collaborate on environments.
+
+source $_PAASIFY_ROOT/share/init-env
+
+while getopts ":o:" opt; do
+  case ${opt} in
+    n )
+      name=$OPTARG
+      ;;
+    o )
+      remote_org=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$name" ]; then
+  echo "Error: An environment name must be supplied (-n myenv)"
+  exit 1
+fi
+if [ -z "$name" ]; then
+  echo "Error: A Terraform Enterprise organization name must be supplied (-o myorg)"
+  exit 1
+fi
+
+env_dir=$ENVS_DIR/$name
+
+if [ -d "$env_dir" ]; then
+  echo "Error: Environment '$name' already exists"
+  exit 1
+fi
+
+export TEMPLATE_ORG="$remote_org"
+export TEMPLATE_WORKSPACE="paasify-$name"
+
+if [ ! -z "$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN" ]; then
+  export TEMPLATE_TOKEN="$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN"
+fi
+
+echo "Generating remote TF config..." 
+
+source $_PAASIFY_ROOT/share/template-remote
+
+(cd $env_dir && terraform state pull)

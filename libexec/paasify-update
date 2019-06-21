@@ -1,0 +1,33 @@
+#!/bin/bash
+# Usage: paasify update
+# Summary: Pull latest paasify modules
+# Help: Pull the latest paasify modules from GitHub, which gives access to new versions and enhancements.
+
+tf_version=0.11.13
+tf_file=/tmp/terraform-paasify.zip
+
+source $_PAASIFY_ROOT/share/init
+
+echo "Fetching latest version metadata from GitHub..."
+
+curl -s https://api.github.com/repos/nthomson-pivotal/pcf-paasify/branches > $PAASIFY_VERSIONS
+
+echo "Downloading Terraform..."
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  tf_url=https://releases.hashicorp.com/terraform/$tf_version/terraform_${tf_version}_linux_amd64.zip
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  tf_url=https://releases.hashicorp.com/terraform/$tf_version/terraform_${tf_version}_darwin_amd64.zip
+else
+  echo "Error: Could not detect OS to download Terraform, only Linux and OSX supported"
+
+  exit 1
+fi
+
+echo "Extracting Terrform..."
+
+wget -q -O $tf_file $tf_url
+
+unzip -o $tf_file -d $_PAASIFY_ROOT/share
+
+echo "Done!"

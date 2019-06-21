@@ -1,0 +1,43 @@
+cat << EOF > $env_dir/config.tf
+module "paasify" {
+  source       = "${TEMPLATE_MODULE_URL}"
+
+  env_name     = "${TEMPLATE_ENV_NAME}"
+  dns_suffix   = "${TEMPLATE_DNS_SUFFIX}"
+  pivnet_token = "\${var.pivnet_token}"
+
+  auto_apply   = "0"
+
+  compute_instance_count = "1"
+
+  tiles        = []
+}
+
+variable "pivnet_token" {
+
+}
+
+output "env_name" {
+  value = "${TEMPLATE_ENV_NAME}"
+}
+
+output "dns_suffix" {
+  value = "${TEMPLATE_DNS_SUFFIX}"
+}
+
+output "opsman_ssh_private_key" {
+  value = "\${module.paasify.opsman_ssh_private_key}"
+}
+
+output "opsman_host" {
+  value = "\${module.paasify.opsman_host}"
+}
+
+output "opsman_user" {
+  value = "admin"
+}
+
+output "opsman_password" {
+  value = "\${module.paasify.opsman_password}"
+}
+EOF

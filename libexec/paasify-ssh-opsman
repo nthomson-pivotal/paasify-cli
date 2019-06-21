@@ -1,0 +1,52 @@
+#!/bin/bash
+# Usage: paasify ssh-opsman
+# Summary: Open an SSH connection to the OpsManager for a given environment
+# Help: Open an SSH connection to the OpsManager for a given environment, which can be useful for applying custom configuration or troubleshooting.
+
+source $_PAASIFY_ROOT/share/init-env
+
+while getopts ":n:" opt; do
+  case ${opt} in
+    n )
+      name=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$name" ]; then
+  echo "Error: An environment name must be supplied (-n)"
+  exit 1
+fi
+
+env_dir=$ENVS_DIR/$name
+
+if [ ! -d "$env_dir" ]; then
+  echo "Environment '$name' does not exist"
+  exit
+fi
+
+state_file=$env_dir/terraform.tfstate
+
+if [ ! -f "$state_file" ]; then
+  echo "Terraform state does not exist, have you run 'paasify apply -n $name' ?"
+  exit 1
+fi
+
+opsman_ssh_key=$env_dir/om_ssh.pem
+
+if [ ! -f "$opsman_ssh_key" ]; then
+  $TF_BIN output -state=$state_file opsman_ssh_private_key > $opsman_ssh_key
+
+  chmod 400 $opsman_ssh_key
+fi
+
+ssh -i $opsman_ssh_key ubuntu@$($TF_BIN output -state=$state_file opsman_host)

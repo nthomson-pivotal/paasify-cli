@@ -1,0 +1,12 @@
+# General init script
+
+set -e
+
+export PAASIFY_HOME=~/.paasify
+
+if [ ! -d $PAASIFY_HOME ]; then
+  mkdir $PAASIFY_HOME
+fi
+
+export PAASIFY_CONFIG=$PAASIFY_HOME/config
+export PAASIFY_VERSIONS=$PAASIFY_HOME/versions.json

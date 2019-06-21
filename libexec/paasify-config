@@ -1,0 +1,39 @@
+#!/bin/bash
+# Usage: paasify config
+# Summary: Configure the CLI
+# Help: Configure various shared settings for the CLI to operate
+
+source $_PAASIFY_ROOT/share/init
+
+while getopts ":p:t:" opt; do
+  case ${opt} in
+    p )
+      pivnet_token=$OPTARG
+      ;;
+    t )
+      terraform_enterprise_token=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -f "$PAASIFY_CONFIG" ]; then
+  > $PAASIFY_CONFIG
+else
+  touch $PAASIFY_CONFIG
+fi
+
+if [ ! -z "$pivnet_token" ]; then
+  echo "PAASIFY_PIVNET_TOKEN=$pivnet_token" >> $PAASIFY_CONFIG
+fi
+if [ ! -z "$terraform_enterprise_token" ]; then
+  echo "PAASIFY_TERRAFORM_ENTERPRISE_TOKEN=$terraform_enterprise_token" >> $PAASIFY_CONFIG
+fi
