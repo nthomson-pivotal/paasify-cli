@@ -2,6 +2,9 @@
 # Usage: paasify plan
 # Summary: Show the plan for a given environment
 # Help: Prints the plan output from Terraform for the changes that would be applied to a given environment in its current state
+#
+#    -n    the name of the environment
+#  
 
 source $_PAASIFY_ROOT/share/init-env
 

@@ -2,10 +2,17 @@
 # Usage: paasify create
 # Summary: Create a new environment
 # Help: Creates a new environment, which can be configured to use a distinct PAS version, cloud etc.
+#
+#    -n    the name of the environment
+#    -v    the version of PAS to install (see 'versions' command)
+#    -c    the public cloud to install to (aws|gcp|azure)
+#    -d    the DNS suffix for the environment
+#    -o    (optional) Terraform Enterprise organization used for remote state
+#  
 
 source $_PAASIFY_ROOT/share/init-env
 
-while getopts ":n:c:v:d:o:" opt; do
+while getopts ":n:c:v:d:o:w" opt; do
   case ${opt} in
     v )
       version=$OPTARG
@@ -110,7 +117,7 @@ fi
 
 echo "Initializing TF project..."
 
-(cd $env_dir && $TF_BIN init -input=false -force-copy)
+(cd $env_dir && $TF_BIN init -input=false)
 
 echo ""
 echo "Environment '$name' has been created, use 'paasify plan -n $name' to see what will be built"

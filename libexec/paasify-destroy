@@ -3,6 +3,9 @@
 # Summary: Destroy a given environment
 # Help: Completely destroys a specific environment, deleting all cloud infrastructure with it. 
 # Warning: This operation is irreversible.
+#
+#    -n    the name of the environment
+#  
 
 source $_PAASIFY_ROOT/share/init-env
 

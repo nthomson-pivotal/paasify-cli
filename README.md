@@ -9,7 +9,7 @@ Basic steps:
 ```
 git clone https://github.com/nthomson-pivotal/paasify-cli.git
 
-eval "$(./paasify-cli/bin/paasify init -)"
+eval "$($PWD/paasify-cli/bin/paasify init -)"
 
 paasify update
 ```
