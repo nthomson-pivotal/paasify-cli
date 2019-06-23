@@ -6,28 +6,45 @@
 tf_version=0.11.13
 tf_file=/tmp/terraform-paasify.zip
 
+om_version=1.1.0
+
 source $_PAASIFY_ROOT/share/init
 
 echo "Fetching latest version metadata from GitHub..."
 
 curl -s https://api.github.com/repos/nthomson-pivotal/pcf-paasify/branches > $PAASIFY_VERSIONS
 
-echo "Downloading Terraform..."
-
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   tf_url=https://releases.hashicorp.com/terraform/$tf_version/terraform_${tf_version}_linux_amd64.zip
+  om_url=https://github.com/pivotal-cf/om/releases/download/${om_version}/om-linux
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   tf_url=https://releases.hashicorp.com/terraform/$tf_version/terraform_${tf_version}_darwin_amd64.zip
+  om_url=https://github.com/pivotal-cf/om/releases/download/${om_version}/om-darwin
 else
-  echo "Error: Could not detect OS to download Terraform, only Linux and OSX supported"
+  echo "Error: Could not detect OS, only Linux and OSX supported"
 
   exit 1
 fi
 
-echo "Extracting Terrform..."
+if [ ! -f $TF_BIN ]; then
+  echo "Downloading Terraform..."
 
-wget -q -O $tf_file $tf_url
+  wget -q -O $tf_file $tf_url
 
-unzip -o $tf_file -d $_PAASIFY_ROOT/share
+  echo "Extracting Terrform..."
+
+  unzip -o $tf_file -d $_PAASIFY_ROOT/share
+else
+  echo "Terraform already downloaded"
+fi
+
+if [ ! -f $OM_BIN ]; then
+  echo "Downloading OM..."
+
+  wget -q -O $OM_BIN $om_url
+  chmod +x $OM_BIN
+else
+  echo "OM already downloaded"
+fi
 
 echo "Done!"

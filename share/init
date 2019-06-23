@@ -10,3 +10,6 @@ fi
 
 export PAASIFY_CONFIG=$PAASIFY_HOME/config
 export PAASIFY_VERSIONS=$PAASIFY_HOME/versions.json
+
+export TF_BIN=$_PAASIFY_ROOT/share/terraform
+export OM_BIN=$_PAASIFY_ROOT/share/om

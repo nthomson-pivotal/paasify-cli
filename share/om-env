@@ -1,0 +1,16 @@
+export OM_TARGET=$(echo $state_json | jq -r '.modules[0].outputs.opsman_host.value')
+export OM_USERNAME=$(echo $state_json | jq -r '.modules[0].outputs.opsman_user.value')
+export OM_PASSWORD=$(echo $state_json | jq -r '.modules[0].outputs.opsman_password.value')
+
+if [[ "$OM_TARGET" == "null" ]]; then
+  echo "Error: Could not find OpsManager host from state, did the environment create successfully?"
+  exit 1
+fi
+
+opsman_ssh_key=$env_dir/om_ssh.pem
+
+if [ ! -f "$opsman_ssh_key" ]; then
+  echo $state_json | jq -r '.modules[0].outputs.opsman_ssh_private_key.value' > $opsman_ssh_key
+
+  chmod 400 $opsman_ssh_key
+fi

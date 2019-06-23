@@ -1,7 +1,7 @@
 #!/bin/bash
-# Usage: paasify ssh
-# Summary: Open an SSH connection to the OpsManager for a given environment
-# Help: Open an SSH connection to the OpsManager for a given environment, which can be useful for applying custom configuration or troubleshooting.
+# Usage: paasify cf-login
+# Summary: Login the local CF CLI to the PAS installed
+# Help: Logs in the local CF CLI to the PAS installed by paasify.
 #
 #    -n    the name of the environment
 #  
@@ -50,4 +50,15 @@ fi
 
 source $_PAASIFY_ROOT/share/om-env
 
-ssh -i $opsman_ssh_key ubuntu@$OM_TARGET
+cf_api_endpoint=$(echo $state_json | jq -r '.modules[0].outputs.cf_api_endpoint.value')
+cf_admin_password=$(om credentials -p cf -c .uaa.admin_credentials -t json | jq -r '.password')
+
+if [ -z "$cf_admin_password" ]; then
+  echo "Error: Could not get CF admin password from OpsManager, did installation complete successfully?"
+  exit 1
+fi
+
+echo "Authenticating to CF with username 'admin' and password '$cf_admin_password'"
+echo ""
+
+cf login -a $cf_api_endpoint -u admin -p $cf_admin_password -o system -s system

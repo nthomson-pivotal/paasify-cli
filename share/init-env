@@ -16,5 +16,3 @@ export ENVS_DIR="$PAASIFY_HOME/envs"
 if [ ! -d "$ENVS_DIR" ]; then
   mkdir $ENVS_DIR
 fi
-
-TF_BIN=$_PAASIFY_ROOT/share/terraform

@@ -1,7 +1,7 @@
 #!/bin/bash
-# Usage: paasify ssh
-# Summary: Open an SSH connection to the OpsManager for a given environment
-# Help: Open an SSH connection to the OpsManager for a given environment, which can be useful for applying custom configuration or troubleshooting.
+# Usage: paasify om-info
+# Summary: Print information about the OpsManager that was created, including endpoint and credentials
+# Help: Print information about the OpsManager that was created, including endpoint and credentials
 #
 #    -n    the name of the environment
 #  
@@ -50,4 +50,8 @@ fi
 
 source $_PAASIFY_ROOT/share/om-env
 
-ssh -i $opsman_ssh_key ubuntu@$OM_TARGET
+echo "OpsManager information"
+echo ""
+echo "Endpoint: https://${OM_TARGET}"
+echo "Username: ${OM_USERNAME}"
+echo "Password: ${OM_PASSWORD}"

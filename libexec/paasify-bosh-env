@@ -50,4 +50,4 @@ fi
 
 source $_PAASIFY_ROOT/share/om-env
 
-ssh -i $opsman_ssh_key ubuntu@$OM_TARGET
+$OM_BIN bosh-env -i $opsman_ssh_key

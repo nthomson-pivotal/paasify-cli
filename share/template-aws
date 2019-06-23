@@ -6,7 +6,7 @@ module "paasify" {
   dns_suffix   = "${TEMPLATE_DNS_SUFFIX}"
   pivnet_token = "\${var.pivnet_token}"
 
-  auto_apply   = "0"
+  auto_apply   = "${var.auto_apply}"
 
   compute_instance_count = "1"
 
@@ -15,6 +15,10 @@ module "paasify" {
 
 variable "pivnet_token" {
 
+}
+
+variable "auto_apply" {
+  default = "0"
 }
 
 output "env_name" {
@@ -39,5 +43,9 @@ output "opsman_user" {
 
 output "opsman_password" {
   value = "\${module.paasify.opsman_password}"
+}
+
+output "cf_api_endpoint" {
+  value = "\${module.paasify.cf_api_endpoint}"
 }
 EOF

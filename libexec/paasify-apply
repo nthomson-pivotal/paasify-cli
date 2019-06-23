@@ -2,13 +2,22 @@
 # Usage: paasify apply
 # Summary: Apply the configuration for a given environment
 # Help: Applies the current configuration for a given environment via Terraform, which can take several hours depending on the tiles installed.
+#
+#    -n    the name of the environment
+#    -a    triggers 'Apply Changes' in OpsManager once all tiles are staged and configured
+#  
 
 source $_PAASIFY_ROOT/share/init-env
 
-while getopts ":n:" opt; do
+auto_apply=false
+
+while getopts ":n:a" opt; do
   case ${opt} in
     n )
       name=$OPTARG
+      ;;
+    a )
+      auto_apply=true
       ;;
     \? )
       echo "Invalid option: $OPTARG" 1>&2
@@ -43,6 +52,13 @@ if [ ! -z "$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN" ]; then
   export ATLAS_TOKEN="$PAASIFY_TERRAFORM_ENTERPRISE_TOKEN"
 fi
 
+if [ "$auto_apply" = true ] ; then
+  export TF_VAR_auto_apply=1
+fi
+
 state_file=$env_dir/terraform.tfstate
 
-(cd $env_dir && TF_VAR_pivnet_token=$PAASIFY_PIVNET_TOKEN $TF_BIN apply -state=$state_file -input=false)
+(cd $env_dir && TF_VAR_pivnet_token=$PAASIFY_PIVNET_TOKEN $TF_BIN apply --auto-approve -state=$state_file -input=false)
+
+echo ""
+echo "Changes to environment '$name' have been applied, use 'paasify om-info -n $name' to get OpsManager details"
