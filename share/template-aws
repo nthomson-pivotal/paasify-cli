@@ -6,7 +6,7 @@ module "paasify" {
   dns_suffix   = "${TEMPLATE_DNS_SUFFIX}"
   pivnet_token = "\${var.pivnet_token}"
 
-  auto_apply   = "${var.auto_apply}"
+  auto_apply   = "\${var.auto_apply}"
 
   compute_instance_count = "1"
 
