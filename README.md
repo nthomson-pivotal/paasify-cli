@@ -3,7 +3,7 @@
 A simple CLI for creating quick, non-production and disposable Pivotal Application Service foundations for testing, demos and prototypes. All you need to being is your own public cloud accounts and DNS. This is built on top of the core [pcf-paasify](https://github.com/nthomson-pivotal/pcf-paasify) Terraform configuration modules.
 
 ```
-paasify create-env -n myenv -v 2.6 -c aws -d aws.paasify.org
+paasify create -n myenv -v 2.6 -c aws -d aws.paasify.org
 
 paasify apply -n myenv -a
 ```
