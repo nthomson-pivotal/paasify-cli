@@ -96,6 +96,13 @@ export TEMPLATE_ENV_NAME="${name}"
 export TEMPLATE_MODULE_URL="github.com/nthomson-pivotal/pcf-paasify?ref=${version_sha}//terraform/$cloud"
 export TEMPLATE_DNS_SUFFIX="${dns_suffix}"
 
+cat << EOF > $env_dir/metadata
+env_name=${name}
+version=${version}
+cloud=${cloud}
+dns_suffix=${dns_suffix}
+EOF
+
 echo "Generating TF config..."
 
 source $_PAASIFY_ROOT/share/template-$cloud
