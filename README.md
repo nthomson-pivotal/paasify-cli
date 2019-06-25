@@ -35,3 +35,28 @@ paasify update
 
 paasify help
 ```
+
+## Usage
+
+The command `paasify help` will provide a guide of the available sub-commands, similar to this:
+
+```
+$ paasify
+Usage: paasify <command> [<args>]
+
+Some useful paasify commands are:
+   apply     Apply the configuration for a given environment
+   bosh-env  Output that can be eval'ed to access to BOSH director
+   cf-login  Login the local CF CLI to the PAS installed
+   commands  List all paasify commands
+   config    Configure the CLI
+   create    Create a new environment
+   destroy   Destroy a given environment
+   om-info   Print information about the OpsManager that was created, including endpoint and credentials
+   plan      Show the plan for a given environment
+   ssh       Open an SSH connection to the OpsManager for a given environment
+   update    Pull latest paasify modules
+   versions  List the current versions that are available
+
+See 'paasify help <command>' for information on a specific command.
+```
