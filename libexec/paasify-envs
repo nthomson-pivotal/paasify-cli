@@ -1,0 +1,17 @@
+#!/bin/bash
+# Usage: paasify envs
+# Summary: List your environments
+# Help: List the environments that are current in paasify
+#  
+
+source $_PAASIFY_ROOT/share/init-env
+
+for dir in $ENVS_DIR/*; do
+  [ -e "$dir" ] || continue
+  source $dir/metadata
+  echo "---"
+  echo "${env_name}"
+  echo -e "  Version: ${version}"
+  echo -e "  Cloud: ${cloud}"
+  echo ""
+done
