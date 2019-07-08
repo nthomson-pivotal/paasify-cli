@@ -1,5 +1,7 @@
 # Paasify CLI
 
+Note: This currently only supports AWS. Azure and GCP will be coming soon.
+
 A simple CLI for creating quick, non-production and disposable Pivotal Application Service foundations for testing, demos and prototypes. All you need to being is your own public cloud accounts and DNS. This is built on top of the core [pcf-paasify](https://github.com/nthomson-pivotal/pcf-paasify) Terraform configuration modules.
 
 ```
